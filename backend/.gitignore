@@ -1,0 +1,8 @@
+uploads/
+node_modules/
+dist/
+.env.local
+*.glb
+*.stl
+*.png
+.env
