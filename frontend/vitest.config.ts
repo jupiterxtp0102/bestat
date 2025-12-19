@@ -7,5 +7,10 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
+    // Suppress console output during tests
+    silent: false,
+    env: {
+      NODE_ENV: 'test',
+    },
   },
 });

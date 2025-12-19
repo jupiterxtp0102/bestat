@@ -41,6 +41,9 @@ describe('API Endpoints', () => {
     });
 
     it('should handle errors', async () => {
+      // Suppress console.error during this test
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
       (models.getAllModels as jest.Mock).mockRejectedValue(
         new Error('Database error')
       );
@@ -49,6 +52,9 @@ describe('API Endpoints', () => {
 
       expect(response.status).toBe(500);
       expect(response.body).toHaveProperty('error');
+
+      // Restore console.error
+      consoleErrorSpy.mockRestore();
     });
   });
 
