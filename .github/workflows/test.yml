@@ -1,0 +1,72 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: bestat_test
+          POSTGRES_USER: bestat
+          POSTGRES_PASSWORD: bestat123
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # Backend
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run migrations
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgresql://bestat:bestat123@localhost:5432/bestat_test
+        run: npm run migrate
+
+      - name: Test backend
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgresql://bestat:bestat123@localhost:5432/bestat_test
+          UPLOAD_DIR: ./uploads
+        run: npm test
+
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build
+
+      # Frontend
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install --legacy-peer-deps
+
+      - name: Test frontend
+        working-directory: ./frontend
+        run: npm test
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
