@@ -32,7 +32,7 @@ jobs:
       # Backend
       - name: Install backend dependencies
         working-directory: ./backend
-        run: npm ci
+        run: npm install
 
       - name: Run migrations
         working-directory: ./backend
@@ -54,7 +54,7 @@ jobs:
       # Frontend
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Test frontend
         working-directory: ./frontend
